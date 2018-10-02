@@ -1,15 +1,12 @@
-﻿using System;
+using System;
 using System.IO;
 
 namespace SharpCompress.IO
 {
-    internal class CountingWritableSubStream : Stream
+    internal class CountingWritableSubStream : NonDisposingStream
     {
-        private readonly Stream writableStream;
-
-        internal CountingWritableSubStream(Stream stream)
+        internal CountingWritableSubStream(Stream stream) : base(stream, throwOnDispose: false)
         {
-            writableStream = stream;
         }
 
         public ulong Count { get; private set; }
@@ -22,7 +19,7 @@ namespace SharpCompress.IO
 
         public override void Flush()
         {
-            writableStream.Flush();
+            Stream.Flush();
         }
 
         public override long Length => throw new NotSupportedException();
@@ -46,8 +43,14 @@ namespace SharpCompress.IO
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            writableStream.Write(buffer, offset, count);
+            Stream.Write(buffer, offset, count);
             Count += (uint)count;
+        }
+
+        public override void WriteByte(byte value)
+        {
+            Stream.WriteByte(value);
+            ++Count;
         }
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using SharpCompress.Common;
 using SharpCompress.Common.Rar;
-using SharpCompress.Common.Rar.Headers;
 
 namespace SharpCompress.IO
 {
@@ -39,11 +38,7 @@ namespace SharpCompress.IO
                     filePartEnumerator.Dispose();
                     filePartEnumerator = null;
                 }
-                if (currentStream != null)
-                {
-                    currentStream.Dispose();
-                    currentStream = null;
-                }
+                currentStream = null;
             }
         }
 
@@ -62,15 +57,11 @@ namespace SharpCompress.IO
 
             maxPosition = compressedSize;
             currentPosition = 0;
-            if (currentStream != null)
-            {
-                currentStream.Dispose();
-            }
             currentStream = filePartEnumerator.Current.GetCompressedStream();
 
             currentPartTotalReadBytes = 0;
 
-            CurrentCrc = crc;
+            CurrentCrc = filePartEnumerator.Current.FileHeader.FileCrc;
 
             streamListener.FireFilePartExtractionBegin(filePartEnumerator.Current.FilePartName,
                                                        compressedSize,

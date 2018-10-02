@@ -3,6 +3,7 @@ using System.IO;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using SharpCompress.Readers.Tar;
+using SharpCompress.Test.Mocks;
 using Xunit;
 
 namespace SharpCompress.Test.Tar
@@ -26,7 +27,6 @@ namespace SharpCompress.Test.Tar
             using (Stream stream = new ForwardOnlyStream(File.OpenRead(Path.Combine(TEST_ARCHIVES_PATH, "Tar.tar"))))
             using (IReader reader = ReaderFactory.Open(stream))
             {
-                ResetScratch();
                 int x = 0;
                 while (reader.MoveToNextEntry())
                 {
@@ -74,7 +74,6 @@ namespace SharpCompress.Test.Tar
         [Fact]
         public void Tar_BZip2_Entry_Stream()
         {
-            ResetScratch();
             using (Stream stream = File.OpenRead(Path.Combine(TEST_ARCHIVES_PATH, "Tar.tar.bz2")))
             using (var reader = TarReader.Open(stream))
             {

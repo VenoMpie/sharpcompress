@@ -20,6 +20,7 @@ namespace SharpCompress.IO
             {
                 Stream.Dispose();
             }
+            base.Dispose(disposing);
         }
 
         public Stream Stream { get; }
@@ -45,6 +46,19 @@ namespace SharpCompress.IO
             currentEntryTotalReadBytes += read;
             listener.FireCompressedBytesRead(currentEntryTotalReadBytes, currentEntryTotalReadBytes);
             return read;
+        }
+
+        public override int ReadByte()
+        {
+            int value = Stream.ReadByte();
+            if (value == -1)
+            {
+                return -1;
+            }
+
+            ++currentEntryTotalReadBytes;
+            listener.FireCompressedBytesRead(currentEntryTotalReadBytes, currentEntryTotalReadBytes);
+            return value;
         }
 
         public override long Seek(long offset, SeekOrigin origin)

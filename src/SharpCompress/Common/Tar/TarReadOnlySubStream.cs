@@ -1,29 +1,29 @@
-﻿using System;
+﻿using SharpCompress.IO;
+using System;
 using System.IO;
 
 namespace SharpCompress.Common.Tar
 {
-    internal class TarReadOnlySubStream : Stream
+    internal class TarReadOnlySubStream : NonDisposingStream
     {
-        private bool isDisposed;
-        private long amountRead;
+        private bool _isDisposed;
+        private long _amountRead;
 
-        public TarReadOnlySubStream(Stream stream, long bytesToRead)
+        public TarReadOnlySubStream(Stream stream, long bytesToRead) : base(stream, throwOnDispose: false)
         {
-            Stream = stream;
             BytesLeftToRead = bytesToRead;
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (isDisposed)
+            if (_isDisposed)
             {
                 return;
             }
-            isDisposed = true;
+            _isDisposed = true;
             if (disposing)
             {
-                long skipBytes = amountRead % 512;
+                long skipBytes = _amountRead % 512;
                 if (skipBytes == 0)
                 {
                     return;
@@ -36,11 +36,10 @@ namespace SharpCompress.Common.Tar
                 var buffer = new byte[skipBytes];
                 Stream.ReadFully(buffer);
             }
+            base.Dispose(disposing);
         }
 
         private long BytesLeftToRead { get; set; }
-
-        public Stream Stream { get; }
 
         public override bool CanRead => true;
 
@@ -67,9 +66,25 @@ namespace SharpCompress.Common.Tar
             if (read > 0)
             {
                 BytesLeftToRead -= read;
-                amountRead += read;
+                _amountRead += read;
             }
             return read;
+        }
+
+        public override int ReadByte()
+        {
+            if (BytesLeftToRead <= 0)
+            {
+                return -1;
+            }
+            int value = Stream.ReadByte();
+            if (value != -1)
+            {
+                --BytesLeftToRead;
+                ++_amountRead;
+            }
+            return value;
+
         }
 
         public override long Seek(long offset, SeekOrigin origin)

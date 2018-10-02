@@ -5,6 +5,7 @@ using SharpCompress.Archives;
 using SharpCompress.Common;
 using SharpCompress.Readers;
 using SharpCompress.Readers.Zip;
+using SharpCompress.Test.Mocks;
 using SharpCompress.Writers;
 using SharpCompress.Writers.Zip;
 using Xunit;
@@ -19,7 +20,7 @@ namespace SharpCompress.Test.Zip
 		}
 
 		// 4GiB + 1
-		const long FOUR_GB_LIMIT = ((long)uint.MaxValue) + 1;
+        private const long FOUR_GB_LIMIT = ((long)uint.MaxValue) + 1;
 
         [Trait("format", "zip64")]
         public void Zip64_Single_Large_File()
@@ -100,7 +101,6 @@ namespace SharpCompress.Test.Zip
 
         public void RunSingleTest(long files, long filesize, bool set_zip64, bool forward_only, long write_chunk_size = 1024 * 1024, string filename = "zip64-test.zip")
         {
-            ResetScratch();
             filename = Path.Combine(SCRATCH2_FILES_PATH, filename);
             
             if (File.Exists(filename))
@@ -134,7 +134,7 @@ namespace SharpCompress.Test.Zip
             var eo = new ZipWriterEntryOptions() { DeflateCompressionLevel = Compressors.Deflate.CompressionLevel.None };
 
             using (var zip = File.OpenWrite(filename))
-            using(var st = forward_only ? (Stream)new NonSeekableStream(zip) : zip)
+            using(var st = forward_only ? (Stream)new ForwardOnlyStream(zip) : zip)
             using (var zipWriter = (ZipWriter)WriterFactory.Open(st, ArchiveType.Zip, opts))
             {
 
@@ -186,33 +186,6 @@ namespace SharpCompress.Test.Zip
                     archive.Entries.Select(x => x.Size).Sum()
                 );
             }
-        }
-
-        /// <summary>
-        /// Helper to create non-seekable streams from filestream
-        /// </summary>
-        private class NonSeekableStream : Stream
-        {
-            private readonly Stream stream;
-            public NonSeekableStream(Stream s) { stream = s; }
-            public override bool CanRead => stream.CanRead;
-            public override bool CanSeek => false;
-            public override bool CanWrite => stream.CanWrite;
-            public override long Length => throw new NotImplementedException();
-            public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-            public override void Flush() { stream.Flush(); }
-
-            public override int Read(byte[] buffer, int offset, int count) 
-            { return stream.Read(buffer, offset, count); }
-
-            public override long Seek(long offset, SeekOrigin origin)
-            { throw new NotImplementedException(); }
-
-            public override void SetLength(long value)
-            { throw new NotImplementedException(); }
-
-            public override void Write(byte[] buffer, int offset, int count)
-            { stream.Write(buffer, offset, count); }
         }
     }
 }
