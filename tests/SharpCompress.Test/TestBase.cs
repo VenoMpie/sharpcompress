@@ -15,6 +15,7 @@ namespace SharpCompress.Test
         protected string SOLUTION_BASE_PATH=null;
         protected string TEST_ARCHIVES_PATH;
         protected string ORIGINAL_FILES_PATH;
+        protected string ORIGINAL_MULTIVOL_FILES_PATH;
         protected string MISC_TEST_FILES_PATH;
         public string SCRATCH_FILES_PATH;
         protected string SCRATCH2_FILES_PATH;
@@ -164,10 +165,10 @@ namespace SharpCompress.Test
         {
             var extracted =
                 Directory.EnumerateFiles(SCRATCH_FILES_PATH, "*.*", SearchOption.AllDirectories)
-                .ToLookup(path => Path.GetExtension(path));
+                .ToLookup(path => Path.GetExtension(path).ToUpper());
             var original =
                 Directory.EnumerateFiles(ORIGINAL_FILES_PATH, "*.*", SearchOption.AllDirectories)
-                .ToLookup(path => Path.GetExtension(path));
+                .ToLookup(path => Path.GetExtension(path).ToUpper());
 
             Assert.Equal(extracted.Count, original.Count);
 
@@ -241,6 +242,7 @@ namespace SharpCompress.Test
             SOLUTION_BASE_PATH = Path.GetDirectoryName(PlatformServices.Default.Application.ApplicationBasePath.Substring(0, index));
             TEST_ARCHIVES_PATH = Path.Combine(SOLUTION_BASE_PATH, "TestArchives", "Archives");
             ORIGINAL_FILES_PATH = Path.Combine(SOLUTION_BASE_PATH, "TestArchives", "Original");
+            ORIGINAL_MULTIVOL_FILES_PATH = Path.Combine(SOLUTION_BASE_PATH, "TestArchives", "OriginalMultiVol");
             MISC_TEST_FILES_PATH = Path.Combine(SOLUTION_BASE_PATH, "TestArchives", "MiscTest");
             SCRATCH_FILES_PATH = Path.Combine(SOLUTION_BASE_PATH, "TestArchives", "Scratch");
             SCRATCH2_FILES_PATH = Path.Combine(SOLUTION_BASE_PATH, "TestArchives", "Scratch2");

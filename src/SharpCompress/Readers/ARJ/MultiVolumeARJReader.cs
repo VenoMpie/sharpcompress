@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using SharpCompress.Common;
-using SharpCompress.Common.Rar;
+using SharpCompress.Common.ARJ;
 using SharpCompress.IO;
 
-namespace SharpCompress.Readers.Rar
+namespace SharpCompress.Readers.ARJ
 {
-    internal class MultiVolumeRarReader : RarReader
+    internal class MultiVolumeARJReader : ARJReader
     {
         private readonly IEnumerator<Stream> streams;
         private Stream tempStream;
 
-        internal MultiVolumeRarReader(IEnumerable<Stream> streams, ReaderOptions options)
+        internal MultiVolumeARJReader(IEnumerable<Stream> streams, ReaderOptions options)
             : base(options)
         {
             this.streams = streams.GetEnumerator();
         }
 
-        internal override void ValidateArchive(RarVolume archive)
+        internal override void ValidateArchive(ARJVolume archive)
         {
         }
 
@@ -29,7 +29,7 @@ namespace SharpCompress.Readers.Rar
             {
                 return streams.Current;
             }
-            throw new MultiVolumeExtractionException("No stream provided when requested by MultiVolumeRarReader");
+            throw new MultiVolumeExtractionException("No stream provided when requested by MultiVolumeARJReader");
         }
 
         internal override bool NextEntryForCurrentStream()
@@ -48,7 +48,7 @@ namespace SharpCompress.Readers.Rar
 
         protected override IEnumerable<FilePart> CreateFilePartEnumerableForCurrentEntry()
         {
-            var enumerator = new MultiVolumeStreamEnumerator<RarReaderEntry, RarVolume, MultiVolumeRarReader>(this, streams, tempStream);
+            var enumerator = new MultiVolumeStreamEnumerator<ARJEntry, ARJVolume, MultiVolumeARJReader>(this, streams, tempStream);
             tempStream = null;
             return enumerator;
         }

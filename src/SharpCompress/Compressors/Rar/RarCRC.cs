@@ -31,14 +31,9 @@ namespace SharpCompress.Compressors.Rar
                     for (int j = 0; j < 8; j++)
                     {
                         if ((c & 1) != 0)
-                        {
-                            c = c >> 1;
-                            c ^= 0xEDB88320;
-                        }
+                            c = (c >> 1) ^ 0xEDB88320;
                         else
-                        {
-                            c = c >> 1;
-                        }
+                            c >>= 1;
                     }
                     crcTab[i] = c;
                 }

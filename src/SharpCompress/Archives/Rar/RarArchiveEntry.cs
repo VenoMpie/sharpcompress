@@ -62,7 +62,7 @@ namespace SharpCompress.Archives.Rar
             {
                 throw new InvalidOperationException("Use ExtractAllEntries to extract SOLID archives.");
             }
-            return new RarStream(archive.Unpack, FileHeader, new MultiVolumeReadOnlyStream(Parts.Cast<RarFilePart>(), archive));
+            return new RarStream(archive.Unpack, FileHeader, new RARMultiVolumeReadOnlyStream(Parts.Cast<RarFilePart>(), archive));
         }
 
         public bool IsComplete { get { return parts.Select(fp => fp.FileHeader).Any(fh => !fh.FileFlags.HasFlag(FileFlags.SPLIT_AFTER)); } }

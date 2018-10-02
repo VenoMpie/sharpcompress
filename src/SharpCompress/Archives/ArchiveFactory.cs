@@ -5,6 +5,7 @@ using SharpCompress.Archives.Rar;
 using SharpCompress.Archives.SevenZip;
 using SharpCompress.Archives.Tar;
 using SharpCompress.Archives.Zip;
+using SharpCompress.Archives.ARJ;
 using SharpCompress.Common;
 using SharpCompress.Compressors.LZMA;
 using SharpCompress.Readers;
@@ -56,7 +57,13 @@ namespace SharpCompress.Archives
                 stream.Seek(0, SeekOrigin.Begin);
                 return TarArchive.Open(stream, readerOptions);
             }
-            throw new InvalidOperationException("Cannot determine compressed stream type. Supported Archive Formats: Zip, GZip, Tar, Rar, 7Zip, LZip");
+            stream.Seek(0, SeekOrigin.Begin);
+            if (ARJArchive.IsARJFile(stream))
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                return ARJArchive.Open(stream, readerOptions);
+            }
+            throw new InvalidOperationException("Cannot determine compressed stream type. Supported Archive Formats: Zip, GZip, Tar, Rar, 7Zip, LZip, ARJ");
         }
 
         public static IWritableArchive Create(ArchiveType type)
@@ -135,7 +142,13 @@ namespace SharpCompress.Archives
                     stream.Dispose();
                     return TarArchive.Open(fileInfo, options);
                 }
-                throw new InvalidOperationException("Cannot determine compressed stream type. Supported Archive Formats: Zip, GZip, Tar, Rar, 7Zip");
+                stream.Seek(0, SeekOrigin.Begin);
+                if (ARJArchive.IsARJFile(stream))
+                {
+                    stream.Dispose();
+                    return ARJArchive.Open(fileInfo, options);
+                }
+                throw new InvalidOperationException("Cannot determine compressed stream type. Supported Archive Formats: Zip, GZip, Tar, Rar, 7Zip, ARJ");
             }
         }
 

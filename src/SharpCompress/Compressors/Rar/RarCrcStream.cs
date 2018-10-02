@@ -4,10 +4,10 @@ using SharpCompress.Common.Rar.Headers;
 
 namespace SharpCompress.Compressors.Rar {
     internal class RarCrcStream : RarStream {
-        private readonly MultiVolumeReadOnlyStream readStream;
+        private readonly RARMultiVolumeReadOnlyStream readStream;
         private uint currentCrc;
 
-        public RarCrcStream(Unpack unpack, FileHeader fileHeader, MultiVolumeReadOnlyStream readStream) : base(unpack, fileHeader, readStream)
+        public RarCrcStream(Unpack unpack, FileHeader fileHeader, RARMultiVolumeReadOnlyStream readStream) : base(unpack, fileHeader, readStream)
         {
             this.readStream = readStream;
             ResetCrc();

@@ -13,6 +13,7 @@
         BCJ2,
         LZip,
         Xz,
+        ARJ,
         Unknown
     }
 }

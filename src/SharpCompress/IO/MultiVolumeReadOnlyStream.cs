@@ -5,14 +5,14 @@ using SharpCompress.Common;
 using SharpCompress.Common.Rar;
 using SharpCompress.Common.Rar.Headers;
 
-namespace SharpCompress.Compressors.Rar
+namespace SharpCompress.IO
 {
-    internal class MultiVolumeReadOnlyStream : Stream
+    internal abstract class MultiVolumeReadOnlyStream<T> : Stream where T : FilePart
     {
         private long currentPosition;
         private long maxPosition;
 
-        private IEnumerator<RarFilePart> filePartEnumerator;
+        private IEnumerator<T> filePartEnumerator;
         private Stream currentStream;
 
         private readonly IExtractionListener streamListener;
@@ -20,7 +20,7 @@ namespace SharpCompress.Compressors.Rar
         private long currentPartTotalReadBytes;
         private long currentEntryTotalReadBytes;
 
-        internal MultiVolumeReadOnlyStream(IEnumerable<RarFilePart> parts, IExtractionListener streamListener)
+        internal MultiVolumeReadOnlyStream(IEnumerable<T> parts, IExtractionListener streamListener)
         {
             this.streamListener = streamListener;
 
@@ -47,9 +47,20 @@ namespace SharpCompress.Compressors.Rar
             }
         }
 
+        protected abstract long GetCompressedSize(T filePart);
+        protected abstract long GetUncompressedSize(T filePart);
+        protected abstract uint GetFileCRC(T filePart);
+        protected abstract string GetFilename(T filePart);
+        protected abstract bool IsFilePartSplit(T filePart);
+        protected abstract bool IsSalted(T filePart);
+
         private void InitializeNextFilePart()
         {
-            maxPosition = filePartEnumerator.Current.FileHeader.CompressedSize;
+            long compressedSize = GetCompressedSize(filePartEnumerator.Current);
+            long uncompressedSize = GetUncompressedSize(filePartEnumerator.Current);
+            uint crc = GetFileCRC(filePartEnumerator.Current);
+
+            maxPosition = compressedSize;
             currentPosition = 0;
             if (currentStream != null)
             {
@@ -59,11 +70,11 @@ namespace SharpCompress.Compressors.Rar
 
             currentPartTotalReadBytes = 0;
 
-            CurrentCrc = filePartEnumerator.Current.FileHeader.FileCRC;
+            CurrentCrc = crc;
 
             streamListener.FireFilePartExtractionBegin(filePartEnumerator.Current.FilePartName,
-                                                       filePartEnumerator.Current.FileHeader.CompressedSize,
-                                                       filePartEnumerator.Current.FileHeader.UncompressedSize);
+                                                       compressedSize,
+                                                       uncompressedSize);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -90,17 +101,17 @@ namespace SharpCompress.Compressors.Rar
                 currentCount -= read;
                 totalRead += read;
                 if (((maxPosition - currentPosition) == 0)
-                    && filePartEnumerator.Current.FileHeader.FileFlags.HasFlag(FileFlags.SPLIT_AFTER))
+                    && IsFilePartSplit(filePartEnumerator.Current))
                 {
-                    if (filePartEnumerator.Current.FileHeader.Salt != null)
+                    if (IsSalted(filePartEnumerator.Current))
                     {
                         throw new InvalidFormatException("Sharpcompress currently does not support multi-volume decryption.");
                     }
-                    string fileName = filePartEnumerator.Current.FileHeader.FileName;
+                    string fileName = GetFilename(filePartEnumerator.Current);
                     if (!filePartEnumerator.MoveNext())
                     {
                         throw new InvalidFormatException(
-                                                         "Multi-part rar file is incomplete.  Entry expects a new volume: " + fileName);
+                                                         "Multi-part file is incomplete.  Entry expects a new volume: " + fileName);
                     }
                     InitializeNextFilePart();
                 }
