@@ -23,7 +23,7 @@ namespace SharpCompress.Readers.ARJ
         {
         }
 
-        internal override Stream RequestInitialStream()
+        protected override Stream RequestInitialStream()
         {
             if (streams.MoveNext())
             {

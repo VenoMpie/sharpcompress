@@ -15,7 +15,7 @@ namespace SharpCompress.Readers.ARJ
         private ARJVolume volume;
         public override ARJVolume Volume => volume;
 
-        internal override IEnumerable<ARJEntry> GetEntries(Stream stream)
+        protected override IEnumerable<ARJEntry> GetEntries(Stream stream)
         {
             volume = new ARJVolume(IO.StreamingMode.Streaming, stream, Options);
             ValidateArchive(volume);

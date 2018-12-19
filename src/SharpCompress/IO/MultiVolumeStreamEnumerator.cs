@@ -50,7 +50,7 @@ namespace SharpCompress.IO
                 return true;
             }
 
-            if (!reader.Entry.IsSplit)
+            if (!reader.Entry.IsSplitAfter)
             {
                 return false;
             }

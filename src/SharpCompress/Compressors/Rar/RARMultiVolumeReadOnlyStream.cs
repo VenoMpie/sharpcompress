@@ -19,7 +19,7 @@ namespace SharpCompress.Compressors.Rar
 
         protected override uint GetFileCRC(RarFilePart filePart)
         {
-            return filePart.FileHeader.FileCRC;
+            return filePart.FileHeader.FileCrc;
         }
 
         protected override string GetFilename(RarFilePart filePart)
@@ -34,12 +34,12 @@ namespace SharpCompress.Compressors.Rar
 
         protected override bool IsFilePartSplit(RarFilePart filePart)
         {
-            return filePart.FileHeader.FileFlags.HasFlag(FileFlags.SPLIT_AFTER);
+            return filePart.FileHeader.HasFlag(FileFlagsV4.SPLIT_AFTER);
         }
 
         protected override bool IsSalted(RarFilePart filePart)
         {
-            return filePart.FileHeader.Salt != null;
+            return filePart.FileHeader.R4Salt != null;
         }
     }
 }

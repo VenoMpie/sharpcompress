@@ -39,7 +39,7 @@ namespace SharpCompress.Common.ARJ
 
         public override bool IsDirectory => FileHeader.FileType.HasFlag(FileTypeEnum.Directory);
 
-        public override bool IsSplit => FileHeader.Flags.HasFlag(FileHeaderFlags.Volume);
+        public override bool IsSplitAfter => FileHeader.Flags.HasFlag(FileHeaderFlags.Volume);
 
         internal override IEnumerable<FilePart> Parts => parts.Cast<FilePart>();
     }

@@ -61,7 +61,7 @@ namespace SharpCompress.IO
 
             currentPartTotalReadBytes = 0;
 
-            CurrentCrc = filePartEnumerator.Current.FileHeader.FileCrc;
+            CurrentCrc = crc;
 
             streamListener.FireFilePartExtractionBegin(filePartEnumerator.Current.FilePartName,
                                                        compressedSize,

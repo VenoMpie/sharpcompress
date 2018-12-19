@@ -94,7 +94,7 @@ namespace SharpCompress.Readers
             return false;
         }
 
-        protected bool LoadStreamForReading(Stream stream)
+        public bool LoadStreamForReading(Stream stream)
         {
             entriesForCurrentReadStream?.Dispose();
             if ((stream == null) || (!stream.CanRead))

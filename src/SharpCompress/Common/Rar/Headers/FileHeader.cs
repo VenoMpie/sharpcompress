@@ -383,7 +383,7 @@ namespace SharpCompress.Common.Rar.Headers
 
         private ushort Flags { get; set; }
 
-        private bool HasFlag(ushort flag) 
+        public bool HasFlag(ushort flag) 
         {
             return (Flags & flag) == flag;
         }
